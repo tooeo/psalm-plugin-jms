@@ -16,7 +16,6 @@ use Psalm\Plugin\RegistrationInterface;
 class PluginTest extends TestCase
 {
     use ProphecyTrait;
-
     /**
      * @var ObjectProphecy<RegistrationInterface>
      */

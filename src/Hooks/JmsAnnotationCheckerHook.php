@@ -8,6 +8,9 @@ use Psalm\IssueBuffer;
 use Psalm\Plugin\EventHandler\AfterClassLikeAnalysisInterface;
 use Psalm\Plugin\EventHandler\Event\AfterClassLikeAnalysisEvent;
 
+/**
+ * @psalm-suppress UnusedClass
+ */
 class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
 {
     protected const ERROR_MESSAGE = 'Class %s does not exists';
