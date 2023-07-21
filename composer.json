@@ -18,8 +18,7 @@
         "psalm/plugin-phpunit": "*",
         "weirdan/prophecy-shim": "*",
         "weirdan/codeception-psalm-module": "*",
-        "codeception/codeception": "*",
-        "symfony/asset": "^6.0"
+        "codeception/codeception": "*"
     },
     "extra": {
         "psalm": {
