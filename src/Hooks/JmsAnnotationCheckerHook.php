@@ -3,7 +3,7 @@
 namespace Tooeo\PsalmPluginJms\Hooks;
 
 use Psalm\CodeLocation;
-use Psalm\Issue\PropertyTypeCoercion;
+use Psalm\Issue\UndefinedDocblockClass;
 use Psalm\IssueBuffer;
 use Psalm\Plugin\EventHandler\AfterClassLikeAnalysisInterface;
 use Psalm\Plugin\EventHandler\Event\AfterClassLikeAnalysisEvent;
@@ -21,16 +21,23 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             foreach ($property->getComments() as $comment) {
                 if ($class = self::parseClass($comment->getText())) {
                     if (!self::isClassExists($class, $event->getClasslikeStorage()->aliases->uses)) {
-                        IssueBuffer::add(
-                            new PropertyTypeCoercion(
+                        $suppressed = self::getSuppressed(
+                            $comment->getText(),
+                            $event->getClasslikeStorage()->suppressed_issues
+                        );
+
+                        IssueBuffer::maybeAdd(
+                            new UndefinedDocblockClass(
                                 sprintf(self::ERROR_MESSAGE, $class),
                                 new CodeLocation(
                                     $event->getStatementsSource()->getSource(),
                                     $event->getStmt(),
                                     null,
                                 ),
-                                $property->props[0]?->name?->name ?? 'none'
-                            )
+                                $class
+                            ),
+                            $suppressed,
+                            true
                         );
                     }
                 }
@@ -46,6 +53,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             'string' => true,
             'float' => true,
             'int' => true,
+            'integer' => true,
             'bool' => true,
             'boolean' => true,
         ];
@@ -83,5 +91,17 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         }
 
         return class_exists($class);
+    }
+
+    private static function getSuppressed(string $comment, array $suppressed = []): array
+    {
+        $matched = [];
+        preg_match_all('#@psalm-suppress\s+(.*)#i', $comment, $matched);
+
+        foreach ($matched[1] ?? [] as $item) {
+            $suppressed[] = $item;
+        }
+
+        return $suppressed;
     }
 }
