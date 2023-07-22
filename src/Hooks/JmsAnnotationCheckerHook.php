@@ -57,6 +57,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             'integer' => true,
             'bool' => true,
             'boolean' => true,
+            'double' => true,
         ];
         $regexps = [
             '#@JMS\\\Type\(["\']{0,1}array<([^<>,\'"]+)>["\']{0,1}\)#i',
