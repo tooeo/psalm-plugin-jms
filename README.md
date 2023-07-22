@@ -27,5 +27,7 @@ This plugin helps avoid that behavior and prevent creating code with unexist cla
 
 
 **Installation**
+```
 composer require --dev tooeo/psalm-plugin-jms
 vendor/bin/psalm-plugin enable tooeo/psalm-plugin-jms
+```
