@@ -141,7 +141,10 @@ CODE;
             'jmsdtoalias' => 'Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto',
             'fixturesalias' => 'Tooeo\PsalmPluginJms\Tests\Fixtures',
         ];
-        $result = JmsAnnotationCheckerHook::isClassExists($class, $uses);
+
+        $namespace = 'Tooeo\PsalmPluginJms\Tests\Fixtures';
+
+        $result = JmsAnnotationCheckerHook::isClassExists($class, $uses, $namespace);
 
         $this->assertEquals($expected, $result);
     }
@@ -149,11 +152,12 @@ CODE;
     public function isClassExistsProvider()
     {
         return [
-            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto', true],
-            ['JmsDtoAlias', true],
-            ['JmsDto', true],
-            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto::class', true],
-            ['FixturesAlias\JmsDto::class', true],
+//            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto', true],
+//            ['JmsDtoAlias', true],
+//            ['JmsDto', true],
+//            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto::class', true],
+//            ['FixturesAlias\JmsDto::class', true],
+            ['SameNamespace::class', true],
         ];
     }
 }

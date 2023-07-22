@@ -20,7 +20,8 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         foreach ($event->getStmt()->getProperties() as $property) {
             foreach ($property->getComments() as $comment) {
                 if ($class = self::parseClass($comment->getText())) {
-                    if (!self::isClassExists($class, $event->getClasslikeStorage()->aliases->uses)) {
+                    if (!self::isClassExists($class, $event->getClasslikeStorage()->aliases->uses, $event->getClasslikeStorage()->aliases->namespace)) {
+
                         $suppressed = self::getSuppressed(
                             $comment->getText(),
                             $event->getClasslikeStorage()->suppressed_issues
@@ -75,7 +76,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         return null;
     }
 
-    public static function isClassExists(string $class, array $uses = []): bool
+    public static function isClassExists(string $class, array $uses, string $namespace): bool
     {
         $class = explode('::', $class)[0];
         foreach ($uses as $flipped => $use) {
@@ -91,7 +92,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             }
         }
 
-        return class_exists($class);
+        return class_exists($class) || class_exists($namespace.'\\'.$class);
     }
 
     private static function getSuppressed(string $comment, array $suppressed = []): array

@@ -13,6 +13,12 @@ class SomeTestFile
      * @psalm-suppress MissingConstructor
      */
     public string $good;
+
+    /**
+     * @JMS\Type(SameNamespace::class);
+     * @psalm-suppress MissingConstructor
+     */
+    public string $goodSameNamespace;
     /**
      * @JMS\Type('array<AssertW\JmsDto>');
      * @psalm-suppress MissingConstructor
