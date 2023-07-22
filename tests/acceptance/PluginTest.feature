@@ -124,6 +124,18 @@ class SomeTestFile
      */
     public string $errorClassWrongClass;
 
+    /**
+     * @JMS\Type('array<string,FixturesAlias\JmsDto>');
+     * @psalm-suppress PropertyNotSetInConstructor
+     */
+    public string $goodArrayKey;
+
+     /**
+     * @JMS\Type('array<string,\Api\User\Dto\CurrencyError>');
+     * @psalm-suppress PropertyNotSetInConstructor
+     */
+    public string $errorArrayKey;
+
 }
       """
     When I run Psalm

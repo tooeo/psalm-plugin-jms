@@ -56,10 +56,7 @@ class PluginTest extends TestCase
     }
 
 
-    /**
-     * @test
-     */
-    public function assertDemoScript(): void
+    public function testPluginMain(): void
     {
         $this->addFile(
             __METHOD__,

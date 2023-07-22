@@ -100,6 +100,30 @@ CODE;
                 '@JMS\Type(float);',
                 null,
             ],
+            [
+                '@JMS\Type(array<string, string>);',
+                null,
+            ],
+            [
+                '@JMS\Type(array<string, int>);',
+                null,
+            ],
+            [
+                '@JMS\Type(array<int,integer>);',
+                null,
+            ],
+            [
+                '@JMS\Type("array<string,Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto>");',
+                'Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto',
+            ],
+            [
+                '@JMS\Type("array<int, Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto>");',
+                'Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto',
+            ],
+            [
+                '@JMS\Type("array<int, JmsDto::class>");',
+                'JmsDto::class',
+            ],
         ];
     }
 

@@ -58,7 +58,8 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             'boolean' => true,
         ];
         $regexps = [
-            '#@JMS\\\Type\(["\']{0,1}array<([^<>\'"]+)>["\']{0,1}\)#i',
+            '#@JMS\\\Type\(["\']{0,1}array<([^<>,\'"]+)>["\']{0,1}\)#i',
+            '#@JMS\\\Type\(["\']{0,1}array<[^<>,\'"]+,\s*([^<>,\'"]+)>["\']{0,1}\)#i',
             '#@JMS\\\Type\(["\']{0,1}([^\'"]+)["\']{0,1}\)#i',
         ];
         foreach ($regexps as $regexp) {
