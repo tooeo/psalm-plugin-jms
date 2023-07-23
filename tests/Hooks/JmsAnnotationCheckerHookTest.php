@@ -124,6 +124,18 @@ CODE;
                 '@JMS\Type("array<int, JmsDto::class>");',
                 'JmsDto::class',
             ],
+            [
+                '@JMS\Type("Enum<JmsDto::class>");',
+                'JmsDto::class',
+            ],
+            [
+                '@JMS\Type("array<enum<JmsDto::class>>");',
+                'JmsDto::class',
+            ],
+            [
+                '@JMS\Type("array<string, enum<JmsDto::class>>");',
+                'JmsDto::class',
+            ],
         ];
     }
 
@@ -152,11 +164,14 @@ CODE;
     public function isClassExistsProvider()
     {
         return [
-//            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto', true],
-//            ['JmsDtoAlias', true],
-//            ['JmsDto', true],
-//            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto::class', true],
-//            ['FixturesAlias\JmsDto::class', true],
+            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto', true],
+            ['JmsDtoAlias', true],
+            ['JmsDto', true],
+            ['Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto::class', true],
+            ['FixturesAlias\JmsDto::class', true],
+            ['SameNamespace::class', true],
+            ['JmsDtoInterface', true],
+            ['JmsDtoWrongInterface', false],
             ['SameNamespace::class', true],
         ];
     }

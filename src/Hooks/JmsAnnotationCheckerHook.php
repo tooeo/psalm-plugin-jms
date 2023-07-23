@@ -20,13 +20,15 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         foreach ($event->getStmt()->getProperties() as $property) {
             foreach ($property->getComments() as $comment) {
                 if ($class = self::parseClass($comment->getText())) {
-                    if (!self::isClassExists($class, $event->getClasslikeStorage()->aliases->uses, $event->getClasslikeStorage()->aliases->namespace)) {
-
+                    if (!self::isClassExists(
+                        $class,
+                        $event->getClasslikeStorage()->aliases->uses,
+                        $event->getClasslikeStorage()->aliases->namespace
+                    )) {
                         $suppressed = self::getSuppressed(
                             $comment->getText(),
                             $event->getClasslikeStorage()->suppressed_issues
                         );
-
                         IssueBuffer::maybeAdd(
                             new UndefinedDocblockClass(
                                 sprintf(self::ERROR_MESSAGE, $class),
@@ -34,6 +36,9 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
                                     $event->getStatementsSource()->getSource(),
                                     $event->getStmt(),
                                     null,
+                                    true,
+                                    null,
+                                    $class
                                 ),
                                 $class
                             ),
@@ -58,15 +63,22 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             'bool' => true,
             'boolean' => true,
             'double' => true,
+            'number' => true,
+            'MixedType' => true,
+            'ArrayOrString' => true,
         ];
         $regexps = [
-            '#@JMS\\\Type\(["\']{0,1}array<([^<>,\'"]+)>["\']{0,1}\)#i',
-            '#@JMS\\\Type\(["\']{0,1}array<[^<>,\'"]+,\s*([^<>,\'"]+)>["\']{0,1}\)#i',
-            '#@JMS\\\Type\(["\']{0,1}([^\'"]+)["\']{0,1}\)#i',
+            'enum<([^<>,\'"]+)>',
+            'array<enum<([^<>,\'"]+)>>',
+            'array<[^<>,\'"]+,\s*enum<([^<>,\'"]+)>>',
+            'array<([^<>,\'"]+)>',
+            'array<[^<>,\'"]+,\s*([^<>,\'"]+)>',
+            '([^\'"]+)',
         ];
         foreach ($regexps as $regexp) {
-            if (preg_match($regexp, $comment, $matched)) {
-                if (isset($ignored[$matched[1] ?? null])) {
+            $pattern = '#@JMS\\\Type\(["\']{0,1}' . $regexp . '["\']{0,1}\)#i';
+            if (preg_match($pattern, $comment, $matched)) {
+                if (isset($ignored[strtolower($matched[1] ?? '')])) {
                     return null;
                 }
 
@@ -93,7 +105,9 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             }
         }
 
-        return class_exists($class) || class_exists($namespace.'\\'.$class);
+        return preg_match('#interface$#i', $class)
+            ? interface_exists($class) || interface_exists($namespace.'\\'.$class)
+            : class_exists($class) || class_exists($namespace.'\\'.$class);
     }
 
     private static function getSuppressed(string $comment, array $suppressed = []): array

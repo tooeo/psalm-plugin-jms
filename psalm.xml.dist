@@ -20,6 +20,6 @@
     </issueHandlers>
 
     <plugins>
-        <pluginClass class="Psalm\PhpUnitPlugin\Plugin" />
+        <pluginClass class="Tooeo\PsalmPluginJms\Plugin" />
     </plugins>
 </psalm>
