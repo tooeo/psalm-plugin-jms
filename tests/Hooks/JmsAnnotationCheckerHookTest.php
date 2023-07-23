@@ -136,6 +136,14 @@ CODE;
                 '@JMS\Type("array<string, enum<JmsDto::class>>");',
                 'JmsDto::class',
             ],
+            [
+                '@JMS\Type("MixedType")',
+                null,
+            ],
+            [
+                '@JMS\Type("ArrayOrString")',
+                null,
+            ],
         ];
     }
 

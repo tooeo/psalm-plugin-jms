@@ -64,8 +64,8 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             'boolean' => true,
             'double' => true,
             'number' => true,
-            'MixedType' => true,
-            'ArrayOrString' => true,
+            'mixedtype' => true,
+            'arrayorstring' => true,
         ];
         $regexps = [
             'enum<([^<>,\'"]+)>',
