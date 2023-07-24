@@ -86,15 +86,21 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
     public static function parseClass(string $comment): ?string
     {
         $matched = [];
-        $pattern = '#@JMS\\\Type\(["\']{0,1}(.*?)["\']{0,1}\)#i';
-        if (preg_match($pattern, $comment, $matched)) {
-            $type = self::findGroup($matched[1] ?? '');
+        $patterns = [
+            '#@JMS\\\Type\(name=["\']{0,1}(.*?)["\']{0,1}\)#i',
+            '#@JMS\\\Type\(["\']{0,1}(.*?)["\']{0,1}\)#i',
+        ];
 
-            if (isset(self::$ignoredTypes[strtolower($type)])) {
-                return null;
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $comment, $matched)) {
+                $type = self::findGroup($matched[1] ?? '');
+
+                if (isset(self::$ignoredTypes[strtolower($type)])) {
+                    return null;
+                }
+
+                return $type;
             }
-
-            return $type;
         }
 
         return null;

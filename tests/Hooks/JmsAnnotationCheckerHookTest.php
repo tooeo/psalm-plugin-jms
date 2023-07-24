@@ -158,6 +158,18 @@ CODE;
                 '@JMS\Type("DateTime<\'d.m.Y H:i:s\', \'UTC\'>")',
                 'DateTime',
             ],
+            [
+                '@JMS\Type(name="DateTime<\'d.m.Y H:i:s\', \'UTC\'>")',
+                'DateTime',
+            ],
+            [
+                '@JMS\Type(name="string")',
+                null,
+            ],
+            [
+                '@JMS\Type(name=array<enum<JmsDto::class>>)',
+                'JmsDto::class',
+            ],
         ];
     }
 
