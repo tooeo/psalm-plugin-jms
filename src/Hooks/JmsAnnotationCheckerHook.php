@@ -69,11 +69,17 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
     public static function findGroup(string $comment): string
     {
         $matched = [];
-        if (preg_match('#<(.*)>#i', $comment, $matched)) {
-            return self::findGroup($matched[1]);
+        if (preg_match('#(array|enum)<(.*)>#i', $comment, $matched)) {
+            return self::findGroup($matched[2]);
         }
 
-        return trim(explode(',', $comment)[1] ?? $comment);
+        $result = explode(',', $comment)[1] ?? $comment;
+        $matchedClass = [];
+        if (preg_match('#(.*)<.*>#i', $result, $matchedClass)) {
+            $result = $matchedClass[1];
+        }
+
+        return trim($result);
     }
 
     public static function parseClass(string $comment): ?string
@@ -135,6 +141,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
     {
         unset(self::$ignoredTypes[strtolower($type)]);
     }
+
     public static function getIgnoredType(): array
     {
         return array_keys(self::$ignoredTypes);

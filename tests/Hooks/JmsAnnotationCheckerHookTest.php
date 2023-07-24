@@ -150,6 +150,10 @@ CODE;
                 '@JMS\Type("ArrayOrString")',
                 null,
             ],
+            [
+                '@JMS\Type(DateTime<\'Y-m-d\'>)',
+                'DateTime',
+            ],
         ];
     }
 
