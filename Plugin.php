@@ -22,22 +22,13 @@ class Plugin implements PluginEntryPointInterface
             return;
         }
 
-        if (!$config->typies instanceof SimpleXMLElement) {
-            return;
-        }
-
-        foreach ($config->plugins ?? [] as $plugin) {
-            $class = (string)$plugin->pluginClass->attributes()['class'];
-            if ($class === self::class) {
-                foreach ($plugin->pluginClass->ignoringTypes ?? [] as $toIgnore) {
-                    foreach ($toIgnore ?? [] as $ignored) {
-                        $toRemove = (string) $ignored->attributes()['remove'] ?? 'false';
-                        if ($toRemove === 'true') {
-                            JmsAnnotationCheckerHook::removeIgnoredType((string)$ignored);
-                        } else {
-                            JmsAnnotationCheckerHook::addIgnoredType((string)$ignored);
-                        }
-                    }
+        foreach ($config->ignoringTypes ?? [] as $toIgnore) {
+            foreach ($toIgnore ?? [] as $ignored) {
+                $toRemove = (string) $ignored->attributes()['remove'] ?? 'false';
+                if ($toRemove === 'true') {
+                    JmsAnnotationCheckerHook::removeIgnoredType((string)$ignored);
+                } else {
+                    JmsAnnotationCheckerHook::addIgnoredType((string)$ignored);
                 }
             }
         }

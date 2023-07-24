@@ -53,21 +53,12 @@ class PluginTest extends TestCase
     {
         $plugin = new Plugin();
         $plugin($this->registration->reveal(), new SimpleXMLElement(<<<XML
-<?xml version="1.0"?>
-      <psalm totallyTyped="true">
-        <projectFiles>
-          <directory name="."/>
-        </projectFiles>
-        <plugins>
           <pluginClass class="Tooeo\PsalmPluginJms\Plugin">
             <ignoringTypes>
                         <ignored>testAdd</ignored>
                         <ignored remove="true">integer</ignored>
             </ignoringTypes>
           </pluginClass>
-
-        </plugins>
-      </psalm>
 XML
  ));
 
