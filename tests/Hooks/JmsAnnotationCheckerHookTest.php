@@ -23,6 +23,8 @@ class JmsAnnotationCheckerHookTest extends TestCase
      * $comment
      */
 CODE;
+        JmsAnnotationCheckerHook::addIgnoredType('MixedType');
+        JmsAnnotationCheckerHook::addIgnoredType('ArrayOrString');
         $result = JmsAnnotationCheckerHook::parseClass($comment);
 
         $this->assertEquals($expected, $result);
@@ -133,8 +135,12 @@ CODE;
                 'JmsDto::class',
             ],
             [
-                '@JMS\Type("array<string, enum<JmsDto::class>>");',
-                'JmsDto::class',
+                '@JMS\Type(array<string, array<string>>);',
+                null,
+            ],
+            [
+                '@JMS\Type(array<string, array<string, JmsDto>>);',
+                'JmsDto',
             ],
             [
                 '@JMS\Type("MixedType")',
@@ -181,6 +187,30 @@ CODE;
             ['JmsDtoInterface', true],
             ['JmsDtoWrongInterface', false],
             ['SameNamespace::class', true],
+        ];
+    }
+
+    /**
+     * @dataProvider  findGroupDataProvider
+     * @return void
+     */
+    public function testFindGroup(string $content, string $expected)
+    {
+        $result = JmsAnnotationCheckerHook::findGroup($content);
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function findGroupDataProvider()
+    {
+        return [
+            ['Class', 'Class'],
+            ['array<Class>', 'Class'],
+            ['array<enum<string>>', 'string'],
+            ['array<enum<string, int>>', 'int'],
+            ['array<enum<string, Class>>', 'Class'],
+            ['array<enum<string, Class::class>>', 'Class::class'],
+            ['array<enum<string, array<enum<array<enum<string, Class::class>>>>>>', 'Class::class'],
         ];
     }
 }

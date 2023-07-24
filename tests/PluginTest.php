@@ -8,6 +8,7 @@ use Psalm\Internal\Provider\FakeFileProvider;
 use Psalm\Internal\RuntimeCaches;
 use Psalm\IssueBuffer;
 use SimpleXMLElement;
+use Tooeo\PsalmPluginJms\Hooks\JmsAnnotationCheckerHook;
 use Tooeo\PsalmPluginJms\Plugin;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -50,9 +51,29 @@ class PluginTest extends TestCase
      */
     public function acceptsConfig()
     {
-        $this->expectNotToPerformAssertions();
         $plugin = new Plugin();
-        $plugin($this->registration->reveal(), new SimpleXMLElement('<myConfig></myConfig>'));
+        $plugin($this->registration->reveal(), new SimpleXMLElement(<<<XML
+<?xml version="1.0"?>
+      <psalm totallyTyped="true">
+        <projectFiles>
+          <directory name="."/>
+        </projectFiles>
+        <plugins>
+          <pluginClass class="Tooeo\PsalmPluginJms\Plugin">
+            <ignoringTypes>
+                        <ignored>testAdd</ignored>
+                        <ignored remove="true">integer</ignored>
+            </ignoringTypes>
+          </pluginClass>
+
+        </plugins>
+      </psalm>
+XML
+ ));
+
+        $ignored = JmsAnnotationCheckerHook::getIgnoredType();
+        $this->assertTrue(in_array('testadd', $ignored), 'testAdd');
+        $this->assertTrue(!in_array('integer', $ignored), 'integer');
     }
 
 

@@ -14,6 +14,21 @@ use Psalm\Plugin\EventHandler\Event\AfterClassLikeAnalysisEvent;
 class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
 {
     protected const ERROR_MESSAGE = 'Class %s does not exists';
+    /**
+     * @var array|true[]
+     */
+    protected static array $ignoredTypes = [
+        'array' => true,
+        'string' => true,
+        'float' => true,
+        'int' => true,
+        'integer' => true,
+        'bool' => true,
+        'boolean' => true,
+        'double' => true,
+        'number' => true,
+
+    ];
 
     public static function afterStatementAnalysis(AfterClassLikeAnalysisEvent $event)
     {
@@ -51,39 +66,28 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         }
     }
 
+    public static function findGroup(string $comment): string
+    {
+        $matched = [];
+        if (preg_match('#<(.*)>#i', $comment, $matched)) {
+            return self::findGroup($matched[1]);
+        }
+
+        return trim(explode(',', $comment)[1] ?? $comment);
+    }
+
     public static function parseClass(string $comment): ?string
     {
         $matched = [];
-        $ignored = [
-            'array' => true,
-            'string' => true,
-            'float' => true,
-            'int' => true,
-            'integer' => true,
-            'bool' => true,
-            'boolean' => true,
-            'double' => true,
-            'number' => true,
-            'mixedtype' => true,
-            'arrayorstring' => true,
-        ];
-        $regexps = [
-            'enum<([^<>,\'"]+)>',
-            'array<enum<([^<>,\'"]+)>>',
-            'array<[^<>,\'"]+,\s*enum<([^<>,\'"]+)>>',
-            'array<([^<>,\'"]+)>',
-            'array<[^<>,\'"]+,\s*([^<>,\'"]+)>',
-            '([^\'"]+)',
-        ];
-        foreach ($regexps as $regexp) {
-            $pattern = '#@JMS\\\Type\(["\']{0,1}' . $regexp . '["\']{0,1}\)#i';
-            if (preg_match($pattern, $comment, $matched)) {
-                if (isset($ignored[strtolower($matched[1] ?? '')])) {
-                    return null;
-                }
+        $pattern = '#@JMS\\\Type\(["\']{0,1}(.*?)["\']{0,1}\)#i';
+        if (preg_match($pattern, $comment, $matched)) {
+            $type = self::findGroup($matched[1] ?? '');
 
-                return $matched[1] ?? null;
+            if (isset(self::$ignoredTypes[strtolower($type)])) {
+                return null;
             }
+
+            return $type;
         }
 
         return null;
@@ -120,5 +124,19 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         }
 
         return $suppressed;
+    }
+
+    public static function addIgnoredType(string $type): void
+    {
+        self::$ignoredTypes[strtolower($type)] = true;
+    }
+
+    public static function removeIgnoredType(string $type): void
+    {
+        unset(self::$ignoredTypes[strtolower($type)]);
+    }
+    public static function getIgnoredType(): array
+    {
+        return array_keys(self::$ignoredTypes);
     }
 }
