@@ -154,6 +154,10 @@ CODE;
                 '@JMS\Type(DateTime<\'Y-m-d\'>)',
                 'DateTime',
             ],
+            [
+                '@JMS\Type("DateTime<\'d.m.Y H:i:s\', \'UTC\'>")',
+                'DateTime',
+            ],
         ];
     }
 

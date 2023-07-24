@@ -73,13 +73,14 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
             return self::findGroup($matched[2]);
         }
 
-        $result = explode(',', $comment)[1] ?? $comment;
-        $matchedClass = [];
-        if (preg_match('#(.*)<.*>#i', $result, $matchedClass)) {
-            $result = $matchedClass[1];
+        if (preg_match('#(.*)<.*>#i', $comment, $matchedClass)) {
+            $comment = $matchedClass[1];
         }
+        $comment = explode(',', $comment)[1] ?? $comment;
+        $matchedClass = [];
 
-        return trim($result);
+
+        return trim($comment);
     }
 
     public static function parseClass(string $comment): ?string
