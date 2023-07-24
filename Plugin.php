@@ -15,7 +15,7 @@ class Plugin implements PluginEntryPointInterface
     /** @return void */
     public function __invoke(RegistrationInterface $psalm, ?SimpleXMLElement $config = null): void
     {
-        require_once __DIR__.'/src/Hooks/JmsAnnotationCheckerHook.php';
+        require_once __DIR__ . '/src/Hooks/JmsAnnotationCheckerHook.php';
         $psalm->registerHooksFromClass(JmsAnnotationCheckerHook::class);
 
         if ($config === null) {
@@ -32,7 +32,7 @@ class Plugin implements PluginEntryPointInterface
                 foreach ($plugin->pluginClass->ignoringTypes ?? [] as $toIgnore) {
                     foreach ($toIgnore ?? [] as $ignored) {
                         $toRemove = (string) $ignored->attributes()['remove'] ?? 'false';
-                        if($toRemove === 'true') {
+                        if ($toRemove === 'true') {
                             JmsAnnotationCheckerHook::removeIgnoredType((string)$ignored);
                         } else {
                             JmsAnnotationCheckerHook::addIgnoredType((string)$ignored);
