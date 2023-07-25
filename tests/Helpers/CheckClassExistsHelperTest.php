@@ -1,12 +1,11 @@
 <?php
 
-namespace Tooeo\PsalmPluginJms\Tests\Hooks;
+namespace Tooeo\PsalmPluginJms\Tests\Helpers;
 
 use PHPUnit\Framework\TestCase;
-use Psalm\Aliases;
-use Tooeo\PsalmPluginJms\Hooks\JmsAnnotationCheckerHook;
+use Tooeo\PsalmPluginJms\Helpers\CheckClassExistsHelper;
 
-class JmsAnnotationCheckerHookTest extends TestCase
+class CheckClassExistsHelperTest extends TestCase
 {
 
     /**
@@ -23,9 +22,9 @@ class JmsAnnotationCheckerHookTest extends TestCase
      * $comment
      */
 CODE;
-        JmsAnnotationCheckerHook::addIgnoredType('MixedType');
-        JmsAnnotationCheckerHook::addIgnoredType('ArrayOrString');
-        $result = JmsAnnotationCheckerHook::parseClass($comment);
+        CheckClassExistsHelper::addIgnoredType('MixedType');
+        CheckClassExistsHelper::addIgnoredType('ArrayOrString');
+        $result = CheckClassExistsHelper::parseClass($comment);
 
         $this->assertEquals($expected, $result);
     }
@@ -190,7 +189,7 @@ CODE;
 
         $namespace = 'Tooeo\PsalmPluginJms\Tests\Fixtures';
 
-        $result = JmsAnnotationCheckerHook::isClassExists($class, $uses, $namespace);
+        $result = CheckClassExistsHelper::isClassExists($class, $uses, $namespace);
 
         $this->assertEquals($expected, $result);
     }
@@ -216,7 +215,7 @@ CODE;
      */
     public function testFindGroup(string $content, string $expected)
     {
-        $result = JmsAnnotationCheckerHook::findGroup($content);
+        $result = CheckClassExistsHelper::findGroup($content);
 
         $this->assertEquals($expected, $result);
     }

@@ -8,7 +8,7 @@ use Psalm\Internal\Provider\FakeFileProvider;
 use Psalm\Internal\RuntimeCaches;
 use Psalm\IssueBuffer;
 use SimpleXMLElement;
-use Tooeo\PsalmPluginJms\Hooks\JmsAnnotationCheckerHook;
+use Tooeo\PsalmPluginJms\Helpers\CheckClassExistsHelper;
 use Tooeo\PsalmPluginJms\Plugin;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -17,6 +17,7 @@ use Psalm\Plugin\RegistrationInterface;
 class PluginTest extends TestCase
 {
     use ProphecyTrait;
+
     /**
      * @var ObjectProphecy<RegistrationInterface>
      */
@@ -52,7 +53,10 @@ class PluginTest extends TestCase
     public function acceptsConfig()
     {
         $plugin = new Plugin();
-        $plugin($this->registration->reveal(), new SimpleXMLElement(<<<XML
+        $plugin(
+            $this->registration->reveal(),
+            new SimpleXMLElement(
+                <<<XML
           <pluginClass class="Tooeo\PsalmPluginJms\Plugin">
             <ignoringTypes>
                         <ignored>testAdd</ignored>
@@ -60,22 +64,26 @@ class PluginTest extends TestCase
             </ignoringTypes>
           </pluginClass>
 XML
- ));
+            )
+        );
 
-        $ignored = JmsAnnotationCheckerHook::getIgnoredType();
+        $ignored = CheckClassExistsHelper::getIgnoredType();
         $this->assertTrue(in_array('testadd', $ignored), 'testAdd');
         $this->assertTrue(!in_array('integer', $ignored), 'integer');
     }
 
 
-    public function testPluginMain(): void
+    /**
+     * @dataProvider pluginMainDataProvider
+     * @return void
+     */
+    public function testPluginMain(string $file): void
     {
         $this->addFile(
             __METHOD__,
-            file_get_contents(__DIR__.'/Fixtures/SomeTestFile.php')
+            file_get_contents(__DIR__ . $file)
         );
         $this->analyzeFile(__METHOD__, new Context());
-        $this->assertSame(4, IssueBuffer::getErrorCount());
 
         $errors = $this->getErrors(__METHOD__);
         $errorsToCheck = [
@@ -87,8 +95,23 @@ XML
 
         foreach ($errorsToCheck as $error) {
             $this->assertTrue(isset($errors[$error]), $error);
+            unset($errors[$error]);
         }
+
+
+        $this->assertEmpty($errors, json_encode($errors));
+
+        $this->assertSame(4, IssueBuffer::getErrorCount());
     }
+
+    public function pluginMainDataProvider()
+    {
+        return [
+            ['/Fixtures/SomeTestFileAttribute.php'],
+            ['/Fixtures/SomeTestFile.php'],
+        ];
+    }
+
 
     protected function makeConfig(): Config
     {

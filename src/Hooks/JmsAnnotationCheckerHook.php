@@ -2,11 +2,15 @@
 
 namespace Tooeo\PsalmPluginJms\Hooks;
 
+use PhpParser\Node\Stmt\Property;
 use Psalm\CodeLocation;
 use Psalm\Issue\UndefinedDocblockClass;
 use Psalm\IssueBuffer;
 use Psalm\Plugin\EventHandler\AfterClassLikeAnalysisInterface;
 use Psalm\Plugin\EventHandler\Event\AfterClassLikeAnalysisEvent;
+use Psalm\Storage\ClassLikeStorage;
+use Tooeo\PsalmPluginJms\Dto\ErrorDto;
+use Tooeo\PsalmPluginJms\Helpers\CheckClassExistsHelper;
 
 /**
  * @psalm-suppress UnusedClass
@@ -14,143 +18,110 @@ use Psalm\Plugin\EventHandler\Event\AfterClassLikeAnalysisEvent;
 class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
 {
     protected const ERROR_MESSAGE = 'Class %s does not exists';
-    /**
-     * @var array|true[]
-     */
-    protected static array $ignoredTypes = [
-        'array' => true,
-        'string' => true,
-        'float' => true,
-        'int' => true,
-        'integer' => true,
-        'bool' => true,
-        'boolean' => true,
-        'double' => true,
-        'number' => true,
-
-    ];
 
     public static function afterStatementAnalysis(AfterClassLikeAnalysisEvent $event)
     {
         foreach ($event->getStmt()->getProperties() as $property) {
-            foreach ($property->getComments() as $comment) {
-                if ($class = self::parseClass($comment->getText())) {
-                    if (!self::isClassExists(
-                        $class,
-                        $event->getClasslikeStorage()->aliases->uses,
-                        $event->getClasslikeStorage()->aliases->namespace
-                    )) {
-                        $suppressed = self::getSuppressed(
-                            $comment->getText(),
-                            $event->getClasslikeStorage()->suppressed_issues
-                        );
-                        IssueBuffer::maybeAdd(
-                            new UndefinedDocblockClass(
-                                sprintf(self::ERROR_MESSAGE, $class),
-                                new CodeLocation(
-                                    $event->getStatementsSource()->getSource(),
-                                    $event->getStmt(),
-                                    null,
-                                    true,
-                                    null,
-                                    $class
-                                ),
-                                $class
-                            ),
-                            $suppressed,
-                            true
-                        );
-                    }
-                }
+            if ($error = self::checkAttributes($property, $event->getClasslikeStorage())) {
+                self::addError($error, $event);
+            }
+            if ($error = self::checkComment($property, $event->getClasslikeStorage())) {
+                self::addError($error, $event);
             }
         }
     }
 
-    public static function findGroup(string $comment): string
+
+    private static function checkAttributes(Property $property, ClassLikeStorage $classLikeStorage): ?ErrorDto
     {
-        $matched = [];
-        if (preg_match('#(array|enum)<(.*)>#i', $comment, $matched)) {
-            return self::findGroup($matched[2]);
-        }
+        foreach ($property->getComments() as $comment) {
+            if ($class = CheckClassExistsHelper::parseClass($comment->getText())) {
+                if (
+                    !CheckClassExistsHelper::isClassExists(
+                        $class,
+                        $classLikeStorage->aliases->uses,
+                        $classLikeStorage->aliases->namespace
+                    )
+                ) {
+                    $suppressed = self::getSuppressed($property, $classLikeStorage->suppressed_issues);
 
-        if (preg_match('#(.*)<.*>#i', $comment, $matchedClass)) {
-            $comment = $matchedClass[1];
-        }
-        $comment = explode(',', $comment)[1] ?? $comment;
-        $matchedClass = [];
-
-
-        return trim($comment);
-    }
-
-    public static function parseClass(string $comment): ?string
-    {
-        $matched = [];
-        $patterns = [
-            '#@JMS\\\Type\(name=["\']{0,1}(.*?)["\']{0,1}\)#i',
-            '#@JMS\\\Type\(["\']{0,1}(.*?)["\']{0,1}\)#i',
-        ];
-
-        foreach ($patterns as $pattern) {
-            if (preg_match($pattern, $comment, $matched)) {
-                $type = self::findGroup($matched[1] ?? '');
-
-                if (isset(self::$ignoredTypes[strtolower($type)])) {
-                    return null;
+                    return new ErrorDto($class, $suppressed);
                 }
-
-                return $type;
             }
         }
 
         return null;
     }
 
-    public static function isClassExists(string $class, array $uses, string $namespace): bool
+    private static function checkComment(Property $property, ClassLikeStorage $classLikeStorage): ?ErrorDto
     {
-        $class = explode('::', $class)[0];
-        foreach ($uses as $flipped => $use) {
-            if ($flipped === strtolower($class)) {
-                $class = $use;
-                break;
+        foreach ($property->attrGroups as $attrGroup) {
+            foreach ($attrGroup->attrs as $attribute) {
+                $lastElement = null;
+                if ($parts = $attribute->name->getParts()) {
+                    $lastElement = end($parts);
+                }
+
+                if ($lastElement !== 'Type') {
+                    continue;
+                }
+                foreach ($attribute->args as $arg) {
+                    if (
+                        null !== $arg->name &&
+                        $arg->name->name !== 'type' ||
+                        property_exists($arg->value, 'name')
+                    ) {
+                        continue;
+                    }
+
+                    $class = CheckClassExistsHelper::findGroup($arg->value?->value);
+                    if (
+                        !CheckClassExistsHelper::isClassExists(
+                            $class,
+                            $classLikeStorage->aliases->uses ?? [],
+                            $classLikeStorage->aliases->namespace ?? ''
+                        )
+                    ) {
+                        $suppressed = self::getSuppressed($property, $classLikeStorage->suppressed_issues);
+
+                        return new ErrorDto($class, $suppressed);
+                    }
+                }
             }
         }
-        foreach ($uses as $flipped => $use) {
-            if (preg_match("#^$flipped#i", $class)) {
-                $class = preg_replace("#$flipped#i", $use, $class);
-                break;
-            }
+
+        return null;
+    }
+
+    private static function addError(ErrorDto $error, AfterClassLikeAnalysisEvent $event)
+    {
+        IssueBuffer::maybeAdd(
+            new UndefinedDocblockClass(
+                sprintf(self::ERROR_MESSAGE, $error->getClass()),
+                new CodeLocation(
+                    $event->getStatementsSource()->getSource(),
+                    $event->getStmt(),
+                    null,
+                    true,
+                    null,
+                    $error->getClass()
+                ),
+                $error->getClass()
+            ),
+            $error->getSuppressed(),
+            $error->isFixable()
+        );
+    }
+
+    private static function getSuppressed(Property $property, array $suppressedIssues): array
+    {
+        foreach ($property->getComments() as $comment) {
+            CheckClassExistsHelper::addSuppressed(
+                $comment->getText(),
+                $suppressedIssues
+            );
         }
 
-        return preg_match('#interface$#i', $class)
-            ? interface_exists($class) || interface_exists($namespace.'\\'.$class)
-            : class_exists($class) || class_exists($namespace.'\\'.$class);
-    }
-
-    private static function getSuppressed(string $comment, array $suppressed = []): array
-    {
-        $matched = [];
-        preg_match_all('#@psalm-suppress\s+(.*)#i', $comment, $matched);
-
-        foreach ($matched[1] ?? [] as $item) {
-            $suppressed[] = $item;
-        }
-
-        return $suppressed;
-    }
-
-    public static function addIgnoredType(string $type): void
-    {
-        self::$ignoredTypes[strtolower($type)] = true;
-    }
-
-    public static function removeIgnoredType(string $type): void
-    {
-        unset(self::$ignoredTypes[strtolower($type)]);
-    }
-
-    public static function getIgnoredType(): array
-    {
-        return array_keys(self::$ignoredTypes);
+        return $suppressedIssues;
     }
 }

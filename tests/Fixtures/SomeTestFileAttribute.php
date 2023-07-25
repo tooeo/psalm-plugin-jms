@@ -7,66 +7,60 @@ use Tooeo\PsalmPluginJms\Tests\Fixtures as FixturesAlias;
 use Tooeo\PsalmPluginJms\Tests\Fixtures\Assert as AssertW;
 
 
-class SomeTestFile
+class SomeTestFileAttribute
 {
-//    /**
-//     * @JMS\Type('\Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto');
-//     * @psalm-suppress MissingConstructor
-//     */
-//    #[Assert\Type('numeric')]
-//    public string $good;
-//
-
-    #[Assert\Type(type: 'JmsDto', message: 'dddd')]
-    #[Assert\SerializedName('amount')]
-    public string $good2;
-
     /**
-     * @JMS\Type(SameNamespace::class);
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('\Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto')]
+    public string $good;
+
+    /**
+     * @psalm-suppress MissingConstructor
+     */
+    #[Assert\Type('SameNamespace::class')]
     public string $goodSameNamespace;
     /**
-     * @JMS\Type('array<AssertW\JmsDto>');
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('array<AssertW\JmsDto>')]
     public string $goodArray;
 
     /**
-     * @JMS\Type('FixturesAlias\JmsDto');
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('FixturesAlias\JmsDto')]
     public string $goodFixturesAliasJmsDto;
 
     /**
-     * @JMS\Type(\Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto::class);
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('\Tooeo\PsalmPluginJms\Tests\Fixtures\JmsDto::class')]
     public string $goodClass;
 
     /**
-     * @JMS\Type('\Api\User\Dto\CurrencyError');
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('\Api\User\Dto\CurrencyError')]
     public string $error;
 
     /**
-     * @JMS\Type(array<\Api\User\Dto\CurrencyError>);
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('array<\Api\User\Dto\CurrencyError>')]
     public string $errorArray;
 
 
     /**
-     * @JMS\Type(\Api\User\Dto\CurrencyError::class);
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('\Api\User\Dto\CurrencyError::class')]
     public string $errorClass;
 
     /**
-     * @JMS\Type(FixturesAlias\JmsDto>);
      * @psalm-suppress MissingConstructor
      */
+    #[Assert\Type('FixturesAlias\JmsDto>')]
     public string $errorClassWrongClass;
 
 }

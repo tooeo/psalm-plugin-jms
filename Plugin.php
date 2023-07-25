@@ -5,6 +5,7 @@ namespace Tooeo\PsalmPluginJms;
 use SimpleXMLElement;
 use Psalm\Plugin\PluginEntryPointInterface;
 use Psalm\Plugin\RegistrationInterface;
+use Tooeo\PsalmPluginJms\Helpers\CheckClassExistsHelper;
 use Tooeo\PsalmPluginJms\Hooks\JmsAnnotationCheckerHook;
 
 /**
@@ -26,9 +27,9 @@ class Plugin implements PluginEntryPointInterface
             foreach ($toIgnore ?? [] as $ignored) {
                 $toRemove = (string) $ignored->attributes()['remove'] ?? 'false';
                 if ($toRemove === 'true') {
-                    JmsAnnotationCheckerHook::removeIgnoredType((string)$ignored);
+                    CheckClassExistsHelper::removeIgnoredType((string)$ignored);
                 } else {
-                    JmsAnnotationCheckerHook::addIgnoredType((string)$ignored);
+                    CheckClassExistsHelper::addIgnoredType((string)$ignored);
                 }
             }
         }
