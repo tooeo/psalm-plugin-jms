@@ -75,7 +75,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
 
                     $class = CheckClassExistsHelper::findGroup($arg->value?->value);
                     if (CheckClassExistsHelper::checkInIgnore($class)) {
-                        return null;
+                        continue;
                     }
                     if (
                         !CheckClassExistsHelper::isClassExists(
