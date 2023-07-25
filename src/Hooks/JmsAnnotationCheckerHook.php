@@ -31,8 +31,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         }
     }
 
-
-    private static function checkAttributes(Property $property, ClassLikeStorage $classLikeStorage): ?ErrorDto
+    private static function checkComment(Property $property, ClassLikeStorage $classLikeStorage): ?ErrorDto
     {
         foreach ($property->getComments() as $comment) {
             if ($class = CheckClassExistsHelper::parseClass($comment->getText())) {
@@ -53,7 +52,7 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
         return null;
     }
 
-    private static function checkComment(Property $property, ClassLikeStorage $classLikeStorage): ?ErrorDto
+    private static function checkAttributes(Property $property, ClassLikeStorage $classLikeStorage): ?ErrorDto
     {
         foreach ($property->attrGroups as $attrGroup) {
             foreach ($attrGroup->attrs as $attribute) {
@@ -75,6 +74,9 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
                     }
 
                     $class = CheckClassExistsHelper::findGroup($arg->value?->value);
+                    if (CheckClassExistsHelper::checkInIgnore($class)) {
+                        return null;
+                    }
                     if (
                         !CheckClassExistsHelper::isClassExists(
                             $class,

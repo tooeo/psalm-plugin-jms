@@ -52,7 +52,7 @@ final class CheckClassExistsHelper
             if (preg_match($pattern, $comment, $matched)) {
                 $type = self::findGroup($matched[1] ?? '');
 
-                if (isset(self::$ignoredTypes[strtolower($type)])) {
+                if (self::checkInIgnore($type)) {
                     return null;
                 }
 
@@ -107,5 +107,10 @@ final class CheckClassExistsHelper
     public static function getIgnoredType(): array
     {
         return array_keys(self::$ignoredTypes);
+    }
+
+    public static function checkInIgnore(string $type): bool
+    {
+        return isset(self::$ignoredTypes[strtolower($type)]);
     }
 }
