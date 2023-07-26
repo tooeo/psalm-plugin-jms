@@ -10,15 +10,16 @@
         }
     ],
     "require": {
+        "php": "^8",
         "vimeo/psalm": "^5.13"
     },
     "require-dev": {
-        "phpunit/phpunit": "*",
-        "squizlabs/php_codesniffer": "*",
-        "psalm/plugin-phpunit": "*",
-        "weirdan/prophecy-shim": "*",
-        "weirdan/codeception-psalm-module": "*",
-        "codeception/codeception": "*"
+        "phpunit/phpunit": "^9.5.5",
+        "squizlabs/php_codesniffer": "^3.3",
+        "psalm/plugin-phpunit": "^0.18.4",
+        "weirdan/prophecy-shim": "^2.0",
+        "weirdan/codeception-psalm-module": "^0.13.1",
+        "codeception/codeception": "^4.1"
     },
     "extra": {
         "psalm": {
