@@ -117,12 +117,12 @@ class JmsAnnotationCheckerHook implements AfterClassLikeAnalysisInterface
 
     private static function getSuppressed(Property $property, array $suppressedIssues): array
     {
-        foreach ($property->getComments() as $comment) {
-            CheckClassExistsHelper::addSuppressed(
-                $comment->getText(),
-                $suppressedIssues
-            );
-        }
+//        foreach ($property->getComments() as $comment) {
+//            CheckClassExistsHelper::addSuppressed(
+//                $comment->getText(),
+//                $suppressedIssues
+//            );
+//        }
 
         return $suppressedIssues;
     }
