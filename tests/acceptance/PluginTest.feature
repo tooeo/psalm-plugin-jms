@@ -141,10 +141,11 @@ class SomeTestFile
     When I run Psalm
     Then I see these errors
       | Type                 | Message                                                                             |
-      | UndefinedDocblockClass | Class AssertW\JmsDto does not exists                                                |
       | UndefinedDocblockClass | Class \Api\User\Dto\CurrencyError does not exists                                   |
+      | UndefinedDocblockClass | Class AssertW\JmsDto does not exists                                                |
       | UndefinedDocblockClass | Class \Api\User\Dto\CurrencyError::class does not exists                            |
       | UndefinedDocblockClass | Class FixturesAlias\JmsDto> does not exists                                         |
+      | UndefinedDocblockClass | Class \Api\User\Dto\CurrencyError does not exists                                   |
     And I see no other errors
 
 

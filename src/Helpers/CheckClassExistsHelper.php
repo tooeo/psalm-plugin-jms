@@ -84,19 +84,6 @@ final class CheckClassExistsHelper
             : class_exists($class) || class_exists($namespace.'\\'.$class);
     }
 
-    public static function addSuppressed(string $comment, array &$suppressed): void
-    {
-        $matched = [];
-        preg_match_all('#@psalm-suppress\s+(.*)#i', $comment, $matched);
-
-
-        var_dump($matched);
-        die();
-        foreach ($matched[1] ?? [] as $item) {
-            $suppressed[] = $item;
-        }
-    }
-
     public static function addIgnoredType(string $type): void
     {
         self::$ignoredTypes[strtolower($type)] = true;
