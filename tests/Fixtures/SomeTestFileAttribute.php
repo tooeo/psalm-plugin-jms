@@ -7,6 +7,9 @@ use Tooeo\PsalmPluginJms\Tests\Fixtures as FixturesAlias;
 use Tooeo\PsalmPluginJms\Tests\Fixtures\Assert as AssertW;
 
 
+/**
+ * @psalm-suppress MissingConstructor
+ */
 class SomeTestFileAttribute
 {
     /**

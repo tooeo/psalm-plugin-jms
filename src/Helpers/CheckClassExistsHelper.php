@@ -89,6 +89,9 @@ final class CheckClassExistsHelper
         $matched = [];
         preg_match_all('#@psalm-suppress\s+(.*)#i', $comment, $matched);
 
+
+        var_dump($matched);
+        die();
         foreach ($matched[1] ?? [] as $item) {
             $suppressed[] = $item;
         }

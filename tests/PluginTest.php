@@ -14,6 +14,9 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psalm\Plugin\RegistrationInterface;
 
+/**
+ * @psalm-suppress MissingConstructor
+ */
 class PluginTest extends TestCase
 {
     use ProphecyTrait;
@@ -98,10 +101,9 @@ XML
             unset($errors[$error]);
         }
 
-
         $this->assertEmpty($errors, json_encode($errors));
 
-        $this->assertSame(4, IssueBuffer::getErrorCount());
+        $this->assertSame(5, IssueBuffer::getErrorCount());
     }
 
     public function pluginMainDataProvider()
